@@ -23,6 +23,22 @@ navigasi-pasar/
 
 ---
 
+## Quick Start
+
+Setelah setup selesai (lihat bagian di bawah), jalankan dengan dua perintah ini:
+
+```bash
+# Terminal 1 — jalankan backend
+cd server && npm run dev
+
+# Terminal 2 — jalankan aplikasi mobile
+cd app && npx expo start
+```
+
+Scan QR code di terminal dengan aplikasi **Expo Go** di HP.
+
+---
+
 ## Prasyarat
 
 Pastikan sudah terinstall:
