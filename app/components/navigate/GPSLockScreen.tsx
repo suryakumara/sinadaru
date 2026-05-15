@@ -6,6 +6,7 @@ import {
   Dimensions,
   StyleSheet,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -211,11 +212,12 @@ function ProgressBar({ durationMs }: { durationMs: number }) {
 interface Props {
   visible: boolean;
   onDismiss: () => void;
+  onCancel: () => void;
   /** minimum ms to show screen before allowing dismiss; default 3000 */
   minDurationMs?: number;
 }
 
-export function GPSLockScreen({ visible, onDismiss, minDurationMs = 3000 }: Props) {
+export function GPSLockScreen({ visible, onDismiss, onCancel, minDurationMs = 3000 }: Props) {
   const startedAt = useRef<number | null>(null);
   const pendingDismiss = useRef(false);
 
@@ -289,6 +291,11 @@ export function GPSLockScreen({ visible, onDismiss, minDurationMs = 3000 }: Prop
           {/* Progress bar */}
           <ProgressBar durationMs={minDurationMs} />
           <Text style={s.loadingText}>Mencari sinyal GPS...</Text>
+
+          {/* Cancel button */}
+          <TouchableOpacity style={s.cancelBtn} onPress={onCancel} activeOpacity={0.7}>
+            <Text style={s.cancelText}>Batalkan</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
     </Modal>
@@ -354,4 +361,7 @@ const s = StyleSheet.create({
     shadowOpacity: 0.8,
   },
   loadingText: { color: "#4a6a8a", fontSize: 12, fontWeight: "500", marginTop: 6 },
+
+  cancelBtn:  { marginTop: 16, paddingVertical: 12, paddingHorizontal: 32, borderRadius: 12, borderWidth: 1, borderColor: "#1e3a5f" },
+  cancelText: { color: "#4a6a8a", fontSize: 14, fontWeight: "600", textAlign: "center" },
 });

@@ -8,56 +8,57 @@ import { C } from "../../constants/Colors";
 const MIN_SCREEN_MS = 3000;
 
 export function GPSSetup() {
-  const { coord, loading, error, startGPSLock } = useGPS();
+  const { coord, loading, error, startGPSLock, cancelGPS } = useGPS();
   const { setOrigin, gpsReady } = useMapStore();
 
   const [showScreen, setShowScreen] = useState(false);
   const screenStartedAt = useRef<number | null>(null);
-  const dismissPending = useRef(false);
 
-  // Lock GPS when accurate coord received
-  useEffect(() => {
-    if (coord && coord.accuracy < 15) {
-      setOrigin(coord.latitude, coord.longitude);
-      // GPS ready — request dismiss (enforces min duration inside GPSLockScreen)
-      setShowScreen(false);
-    }
-  }, [coord]);
-
-  // Show loading screen when loading starts
+  // Show loading screen when search starts
   useEffect(() => {
     if (loading) {
       screenStartedAt.current = Date.now();
-      dismissPending.current = false;
       setShowScreen(true);
+    } else {
+      // loading ended (done, cancelled, or error) — close screen
+      setShowScreen(false);
     }
   }, [loading]);
 
-  const handleStart = () => {
-    startGPSLock();
+  // Accept coord at any accuracy ≤50m, or any reading after cancel
+  useEffect(() => {
+    if (coord && coord.accuracy <= 50) {
+      setOrigin(coord.latitude, coord.longitude);
+    }
+  }, [coord]);
+
+  const handleCancel = () => {
+    cancelGPS();
+    setShowScreen(false);
   };
 
   const accuracyLabel = coord
     ? coord.accuracy <= 10 ? "Sangat Baik"
     : coord.accuracy <= 20 ? "Cukup Baik"
+    : coord.accuracy <= 50 ? "Cukup"
     : "Kurang Baik"
     : null;
   const accuracyColor = coord
     ? coord.accuracy <= 10 ? C.success
-    : coord.accuracy <= 20 ? C.warning
+    : coord.accuracy <= 20 ? C.success
+    : coord.accuracy <= 50 ? C.warning
     : C.error
     : C.text2;
 
   return (
     <>
-      {/* Full-screen GPS loading screen (modal) */}
       <GPSLockScreen
         visible={showScreen}
         minDurationMs={MIN_SCREEN_MS}
         onDismiss={() => setShowScreen(false)}
+        onCancel={handleCancel}
       />
 
-      {/* Compact card shown in scroll view */}
       <View style={s.card}>
         <View style={[s.accentBar, { backgroundColor: gpsReady ? C.success : C.primary }]} />
 
@@ -72,7 +73,6 @@ export function GPSSetup() {
           </View>
           <Text style={s.desc}>Berdiri di pintu masuk pasar lalu kunci posisi GPS</Text>
 
-          {/* GPS info after lock */}
           {coord && gpsReady && (
             <View style={s.infoBox}>
               <View style={s.infoRow}>
@@ -96,7 +96,7 @@ export function GPSSetup() {
 
           <TouchableOpacity
             style={[s.btn, loading && s.btnDisabled, gpsReady && s.btnSuccess]}
-            onPress={handleStart}
+            onPress={startGPSLock}
             disabled={loading}
           >
             <Text style={s.btnText}>

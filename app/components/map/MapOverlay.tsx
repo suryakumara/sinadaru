@@ -10,7 +10,11 @@ import { EmptyState } from "../ui/EmptyState";
 
 const { width: W } = Dimensions.get("window");
 
-export function MapOverlay() {
+interface Props {
+  heading?: number;
+}
+
+export function MapOverlay({ heading = 0 }: Props) {
   const {
     posX, posY, steps,
     mapUri, mapOriginX, mapOriginY, imageWidth, imageHeight, scaleX, scaleY,
@@ -79,7 +83,7 @@ export function MapOverlay() {
               style={{ width: W, height: displayH }}
               resizeMode="contain"
             />
-            <UserDot x={px * displayScale} y={py * displayScale} />
+            <UserDot x={px * displayScale} y={py * displayScale} heading={heading} />
           </View>
         </TouchableOpacity>
       </ScrollView>

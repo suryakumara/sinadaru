@@ -9,6 +9,7 @@ import { AltitudeBar } from "../../components/ui/AltitudeBar";
 import { AppIcon } from "../../components/ui/AppIcon";
 import { useBarometer } from "../../hooks/useBarometer";
 import { usePDR } from "../../hooks/usePDR";
+import { useCompass } from "../../hooks/useCompass";
 import { C } from "../../constants/Colors";
 
 export default function MapTab() {
@@ -16,6 +17,7 @@ export default function MapTab() {
     useMapStore();
   const baro = useBarometer(isTracking);
   const { position } = usePDR(isTracking);
+  const { heading } = useCompass(true);
   const [searchText, setSearchText] = useState("");
 
   React.useEffect(() => {
@@ -31,13 +33,14 @@ export default function MapTab() {
       {/* Map fills screen */}
       <View style={s.mapArea}>
         {mapMode === "2d" ? (
-          <MapOverlay />
+          <MapOverlay heading={heading} />
         ) : (
           <Map3DView
             mapUri={mapUri}
             posX={position.x}
             posY={position.y}
             altitude={baro.altitude}
+            heading={heading}
           />
         )}
       </View>
