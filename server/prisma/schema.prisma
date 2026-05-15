@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Pasar {
+  id        String   @id @default(cuid())
+  nama      String
+  alamat    String?
+  deskripsi String?  @db.Text
+  denahUrl  String?  @map("denah_url") @db.VarChar(500)
+  scaleX    Float    @default(0.05) @map("scale_x")
+  scaleY    Float    @default(0.05) @map("scale_y")
+  originX   Float    @default(100)  @map("origin_x")
+  originY   Float    @default(500)  @map("origin_y")
+  kios      Kios[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("pasars")
+}
+
+model Kios {
+  id        String   @id @default(cuid())
+  nama      String
+  pemilik   String?
+  kategori  Kategori @default(LAINNYA)
+  blok      String
+  nomor     String   @map("nomor_kios")
+  posisiX   Float?   @map("posisi_x")
+  posisiY   Float?   @map("posisi_y")
+  deskripsi String?  @db.Text
+  pasarId   String   @map("pasar_id")
+  pasar     Pasar    @relation(fields: [pasarId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("kios")
+}
+
+enum Kategori {
+  SAYUR
+  DAGING
+  IKAN
+  BUMBU
+  LAINNYA
+}
